@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WPP Trader Web - Painel de Controle</title>
+    <meta name="description" content="Interface web premium de monitoramento e controle para o robô WhatsApp-to-MetaTrader 5. Gerencie conexões, veja logs e QR code em tempo real.">
+    <!-- Google Fonts: Inter e Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar de Navegação -->
+        <aside class="app-sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">📈</div>
+                <h1 class="brand-title">WPP Trader</h1>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button id="nav-btn-dashboard" class="nav-item active" onclick="switchTab('dashboard')">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-text">Dashboard</span>
+                </button>
+                <button id="nav-btn-config" class="nav-item" onclick="switchTab('config')">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Configurações</span>
+                </button>
+                <button id="nav-btn-logs" class="nav-item" onclick="switchTab('logs')">
+                    <span class="nav-icon">📜</span>
+                    <span class="nav-text">Logs & Sinais</span>
+                </button>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <p class="app-version">v2.0.0 Web Cloud</p>
+                <p class="app-author">Hospedado no Ubuntu</p>
+            </div>
+        </aside>
+
+        <!-- Área de Conteúdo Principal -->
+        <main class="app-main">
+            <!-- Topbar / Cabeçalho -->
+            <header class="app-header">
+                <div class="header-info">
+                    <h2 id="page-title" class="page-title">Dashboard</h2>
+                    <p id="page-subtitle" class="page-subtitle">Visão geral e conexões em tempo real</p>
+                </div>
+                <div class="system-status-pill">
+                    <span class="status-dot green pulse" id="global-status-dot"></span>
+                    <span class="status-text" id="global-status-text">Monitorando</span>
+                </div>
+            </header>
+
+            <!-- Cards de Status -->
+            <section class="status-cards-row">
+                <!-- Status WhatsApp -->
+                <div class="status-card" id="card-wpp">
+                    <div class="card-header">
+                        <span class="card-icon" style="background: rgba(37, 211, 102, 0.1); color: #25D366;">📱</span>
+                        <div class="card-badge offline" id="badge-wpp">Offline</div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">WhatsApp</h3>
+                        <p class="card-value" id="val-wpp">Desconectado</p>
+                    </div>
+                </div>
+
+                <!-- Status Agente MetaTrader 5 -->
+                <div class="status-card" id="card-mt5">
+                    <div class="card-header">
+                        <span class="card-icon" style="background: rgba(0, 210, 255, 0.1); color: #00d2ff;">🔌</span>
+                        <div class="card-badge offline" id="badge-mt5">Offline</div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Agente Windows (MT5)</h3>
+                        <p class="card-value" id="val-mt5">Desconectado</p>
+                    </div>
+                </div>
+
+                <!-- Total Sinais -->
+                <div class="status-card" id="card-signals">
+                    <div class="card-header">
+                        <span class="card-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">📊</span>
+                        <div class="card-badge info">Hoje</div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Sinais Processados</h3>
+                        <p class="card-value" id="val-signals">0</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Telas das Guias -->
+            <div class="tab-content-container">
+                
+                <!-- GUIA: DASHBOARD -->
+                <article id="tab-dashboard" class="tab-pane active">
+                    <div class="dashboard-grid">
+                        <!-- Coluna QR Code -->
+                        <div class="content-card qr-section">
+                            <h4 class="card-heading">Conexão do WhatsApp</h4>
+                            <p class="card-subheading">Escaneie o código abaixo com o aplicativo WhatsApp do seu celular para autenticar o robô.</p>
+                            
+                            <div class="qr-container-wrapper">
+                                <div class="qr-box" id="qr-display-box">
+                                    <!-- QR Code ou Ícone de Conectado -->
+                                    <div class="qr-placeholder" id="qr-placeholder">
+                                        <div class="spinner"></div>
+                                        <p>Carregando status do WhatsApp...</p>
+                                    </div>
+                                    <img id="qr-image" src="" alt="WhatsApp QR Code" class="hidden">
+                                    <div id="qr-success" class="qr-success-state hidden">
+                                        <div class="success-icon">✓</div>
+                                        <p class="success-title">WhatsApp Conectado</p>
+                                        <p class="success-subtitle">O robô está pronto para escutar o grupo</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="qr-actions">
+                                <button id="btn-connect-wpp" class="btn-primary" onclick="requestConnectWpp()">📱 Iniciar Conexão</button>
+                                <button id="btn-logout-wpp" class="btn-secondary" onclick="requestLogoutWpp()">🔴 Desconectar WhatsApp</button>
+                            </div>
+                        </div>
+
+                        <!-- Coluna Resumo Rápido -->
+                        <div class="content-card info-section">
+                            <h4 class="card-heading">Configuração de Execução</h4>
+                            <p class="card-subheading">Instruções rápidas para colocar o robô em produção.</p>
+                            
+                            <div class="instruction-steps">
+                                <div class="step-item">
+                                    <span class="step-num">1</span>
+                                    <div class="step-text">
+                                        <h5>Defina o Grupo Alvo</h5>
+                                        <p>Vá na aba "Configurações" e digite o nome idêntico do grupo do WhatsApp que envia os sinais.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item">
+                                    <span class="step-num">2</span>
+                                    <div class="step-text">
+                                        <h5>Escaneie o QR Code</h5>
+                                        <p>Conecte o WhatsApp escaneando o código gerado à esquerda.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item">
+                                    <span class="step-num">3</span>
+                                    <div class="step-text">
+                                        <h5>Inicie o Agente no Windows</h5>
+                                        <p>Execute o script <code>agent.py</code> na sua máquina local com o MetaTrader 5 aberto.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="agent-download-info">
+                                <div class="info-alert">
+                                    <span class="alert-icon">💡</span>
+                                    <div class="alert-content">
+                                        <p><strong>Dica de Segurança:</strong> Como a execução é híbrida, suas credenciais de login e senha da corretora ficam salvas localmente no seu computador e nunca são enviadas para a VM na nuvem.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- GUIA: CONFIGURAÇÕES -->
+                <article id="tab-config" class="tab-pane">
+                    <div class="content-card config-form-card">
+                        <h4 class="card-heading">Configurações Gerais</h4>
+                        <p class="card-subheading">Edite os parâmetros de funcionamento do listener na nuvem.</p>
+                        
+                        <form id="config-form" onsubmit="saveConfiguration(event)">
+                            <div class="form-group">
+                                <label for="input-wpp-group" class="form-label">Grupo Alvo do WhatsApp</label>
+                                <input type="text" id="input-wpp-group" class="form-input" placeholder="Ex: SINAIS VIP EXPERT" required>
+                                <span class="form-hint">O robô lerá mensagens apenas deste grupo. Atenção: diferencia maiúsculas/minúsculas.</span>
+                            </div>
+                            
+                            <h5 class="card-heading" style="margin-top: 2rem;">Conexão MetaTrader 5</h5>
+                            
+                            <div class="form-group">
+                                <label for="input-mt5-login" class="form-label">Login MT5</label>
+                                <input type="text" id="input-mt5-login" class="form-input" placeholder="Ex: 12345678">
+                            </div>
+                            <div class="form-group">
+                                <label for="input-mt5-password" class="form-label">Senha MT5</label>
+                                <input type="password" id="input-mt5-password" class="form-input" placeholder="Sua senha da corretora">
+                            </div>
+                            <div class="form-group">
+                                <label for="input-mt5-server" class="form-label">Servidor MT5</label>
+                                <input type="text" id="input-mt5-server" class="form-input" placeholder="Ex: XP-DEMO">
+                            </div>
+                            <div class="form-group">
+                                <label for="input-mt5-path" class="form-label">Caminho do MT5 (Opcional)</label>
+                                <input type="text" id="input-mt5-path" class="form-input" placeholder="C:\Arquivos de Programas\MetaTrader 5\terminal64.exe">
+                            </div>
+                            <div class="form-group">
+                                <label for="input-valor-op" class="form-label">Valor Alvo por Operação (R$)</label>
+                                <input type="number" id="input-valor-op" class="form-input" placeholder="1000" value="1000">
+                                <span class="form-hint">O robô calculará a quantidade de lotes necessária para investir aproximadamente este valor.</span>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" id="btn-save-config" class="btn-primary">💾 Salvar Configurações</button>
+                            </div>
+                        </form>
+                    </div>
+                </article>
+
+                <!-- GUIA: LOGS & SINAIS -->
+                <article id="tab-logs" class="tab-pane">
+                    <div class="content-card console-card">
+                        <div class="console-header">
+                            <div class="console-controls">
+                                <span class="console-dot red"></span>
+                                <span class="console-dot yellow"></span>
+                                <span class="console-dot green"></span>
+                                <span class="console-title">wpp-trader@ubuntu:~</span>
+                            </div>
+                            <button id="btn-clear-logs" class="btn-console-clear" onclick="requestClearLogs()">🗑 Limpar Terminal</button>
+                        </div>
+                        <div class="console-body" id="console-terminal">
+                            <!-- Logs injetados dinamicamente -->
+                            <div class="log-line system">[SISTEMA] Conectando ao terminal de logs em tempo real...</div>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+        </main>
+    </div>
+    
+    <!-- Script do SocketIO local do browser e app js -->
+    <script src="app.js"></script>
+</body>
+</html>

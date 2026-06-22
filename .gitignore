@@ -1,0 +1,29 @@
+# Arquivos do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# Arquivos do Node.js
+node_modules/
+package-lock.json
+npm-debug.log
+
+# Sessão e Logs do WhatsApp
+wpp_listener/.wwebjs_auth/
+wpp_listener/.wwebjs_cache/
+
+# Configurações com dados sensíveis
+agent_config.json
+web_server/web_config.json
+
+# Dados e Configs Locais do MT5
+WPP_Trader_Data/
+
+# Sistema Operacional
+.DS_Store
+Thumbs.db

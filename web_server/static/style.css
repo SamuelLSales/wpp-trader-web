@@ -715,7 +715,7 @@ body {
 /* --------------------------------------------------------------------------
    MEDIA QUERIES PARA RESPONSIVIDADE
    -------------------------------------------------------------------------- */
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
     .app-container {
         grid-template-columns: 1fr;
     }
